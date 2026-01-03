@@ -318,9 +318,10 @@
 function sendReceiptToTelegram() {
   const file = document.getElementById('receiptInput').files[0];
   const amount = document.getElementById('receiptAmount').value;
+  const username = document.getElementById('receiptUser').value;
 
-  if (!file) {
-    alert("Çek seçilməyib!");
+  if (!file || !amount || !username) {
+    alert("Bütün sahələri doldurun!");
     return;
   }
 
@@ -333,7 +334,8 @@ function sendReceiptToTelegram() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         image: base64,
-        amount: amount
+        amount: amount,
+        username: username
       })
     });
 
@@ -347,6 +349,7 @@ function sendReceiptToTelegram() {
   reader.readAsDataURL(file);
 }
 </script>
+
 </body>
 
 </body>  
