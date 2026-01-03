@@ -1,21 +1,27 @@
+const BOT_TOKEN = "BURAYA_BOT_TOKENİNİ_YAZ";
+const CHAT_ID = "BURAYA_CHAT_ID_YAZ";
+
 exports.handler = async (event) => {
   try {
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" };
     }
 
-    const { image, amount } = JSON.parse(event.body);
-    if (!image) {
-      return { statusCode: 400, body: "No image" };
+    const { image, amount, username } = JSON.parse(event.body);
+    if (!image || !amount || !username) {
+      return { statusCode: 400, body: "Missing data" };
     }
 
     const buffer = Buffer.from(image, "base64");
 
     const form = new FormData();
-    form.append("chat_id", process.env.CHAT_ID);
+    form.append("chat_id", CHAT_ID);
     form.append(
       "caption",
-      `🧾 YENİ BALANS ARTIRIMI\n💰 Məbləğ: ${amount || "Qeyd edilməyib"}\n🕒 ${new Date().toLocaleString()}`
+`🧾 YENİ BALANS ARTIRIMI
+💰 Məbləğ: ${amount} AZN
+👤 İstifadəçi: ${username}
+🕒 ${new Date().toLocaleString()}`
     );
     form.append(
       "photo",
@@ -23,26 +29,18 @@ exports.handler = async (event) => {
       "receipt.jpg"
     );
 
-    const tg = await fetch(
-      `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendPhoto`,
+    const res = await fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,
       {
         method: "POST",
         body: form,
       }
     );
 
-    if (!tg.ok) {
-      throw new Error("Telegram error");
-    }
+    if (!res.ok) throw new Error("Telegram error");
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true }),
-    };
+    return { statusCode: 200, body: "OK" };
   } catch (e) {
-    return {
-      statusCode: 500,
-      body: e.message,
-    };
+    return { statusCode: 500, body: e.message };
   }
 };
