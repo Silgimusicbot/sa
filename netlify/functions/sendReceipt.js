@@ -1,4 +1,5 @@
-
+const BOT_TOKEN = "8231622027:AAERpquUuDhCeBaqciyqqTjpxwtURkVTCpU";
+const CHAT_ID = "6436992668";
 
 exports.handler = async (event) => {
   try {
