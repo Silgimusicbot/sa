@@ -1,5 +1,4 @@
-const BOT_TOKEN = "BURAYA_BOT_TOKENİNİ_YAZ";
-const CHAT_ID = "BURAYA_CHAT_ID_YAZ";
+
 
 exports.handler = async (event) => {
   try {
