@@ -313,6 +313,40 @@
 
     updateOrderStats();  
 </script>
+<script>
+function sendReceiptToTelegram() {
+  const file = document.getElementById('receiptInput').files[0];
+  const amount = document.getElementById('receiptAmount').value;
+
+  if (!file) {
+    alert("Çek seçilməyib!");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result.split(",")[1];
+
+    const res = await fetch("/.netlify/functions/sendReceipt", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        image: base64,
+        amount: amount
+      })
+    });
+
+    if (res.ok) {
+      alert("✅ Çek göndərildi");
+    } else {
+      alert("❌ Xəta baş verdi");
+    }
+  };
+
+  reader.readAsDataURL(file);
+}
+</script>
+</body>
 
 </body>  
 </html>  
