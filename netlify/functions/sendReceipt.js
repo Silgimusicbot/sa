@@ -1,8 +1,11 @@
-const fetch = require("node-fetch");
 const FormData = require("form-data");
 
 exports.handler = async (event) => {
   try {
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" };
+    }
+
     const { image, amount } = JSON.parse(event.body);
     const buffer = Buffer.from(image, "base64");
 
@@ -14,13 +17,16 @@ exports.handler = async (event) => {
     );
     form.append("photo", buffer, "receipt.jpg");
 
-    await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendPhoto`, {
-      method: "POST",
-      body: form,
-    });
+    await fetch(
+      `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendPhoto`,
+      {
+        method: "POST",
+        body: form,
+      }
+    );
 
     return { statusCode: 200, body: "OK" };
   } catch (e) {
-    return { statusCode: 500, body: "ERROR" };
+    return { statusCode: 500, body: e.message };
   }
 };
