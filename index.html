@@ -265,7 +265,13 @@
         else if(nov === "QR") detay = "QR kod göndəriləcək";  
         else { alert("Zəhmət olmasa məlumat növünü seçin!"); return; }  
 
-        const msg = `⚡ YENİ SİFARİŞ ⚡\n-----------\n💎 Paket: ${paket}\n🔑 Növ: ${nov}\n📝 Detallar: ${detay}`;  
+        const msg =
+        "\u26A1 YENİ SİFARİŞ \u26A1\n" +
+        "-----------\n" +
+        "\uD83D\uDC8E Paket: " + paket + "\n" +
+        "\uD83D\uDD11 Növ: " + nov + "\n" +
+        "\uD83D\uDCDD Detallar: " + detay;
+  
         window.open(`https://wa.me/994506775351?text=${encodeURIComponent(msg)}`, '_blank');  
     }  
 
