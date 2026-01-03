@@ -756,3 +756,52 @@ window.showSection = function(section) {
         document.body.insertAdjacentHTML('beforeend', loginHTML);
     }
 </script>
+<script>
+    // 1. Kartları və paketləri yaddaşdan yükləmək üçün funksiya
+    function loadDataFromStorage() {
+        const savedBanks = JSON.parse(localStorage.getItem('bankDetails'));
+        if (savedBanks) {
+            const cards = document.querySelectorAll('#balance-section .card-box');
+            if(savedBanks.b1Name && savedBanks.b1Card) cards[0].innerHTML = `<small style="color: #777;">${savedBanks.b1Name}</small><br><b>${savedBanks.b1Card}</b>`;
+            if(savedBanks.b2Name && savedBanks.b2Card) cards[1].innerHTML = `<small style="color: #777;">${savedBanks.b2Name}</small><br><b>${savedBanks.b2Card}</b>`;
+            if(savedBanks.m10Num) cards[2].innerHTML = `<small style="color: #777;">M10 Nömrə</small><br><b>${savedBanks.m10Num}</b>`;
+        }
+
+        const savedPkgs = JSON.parse(localStorage.getItem('jetonPackages'));
+        if (savedPkgs) {
+            const selectBox = document.getElementById('jetonPaketi');
+            selectBox.innerHTML = ""; 
+            savedPkgs.forEach(pkg => {
+                let opt = document.createElement('option');
+                opt.value = pkg.val;
+                opt.text = pkg.txt;
+                selectBox.appendChild(opt);
+            });
+        }
+    }
+
+    // 2. Mövcud funksiyaları yaddaşa yazacaq şəkildə yeniləyirik
+    const originalUpdateBank = updateBankDetails;
+    updateBankDetails = function() {
+        const details = {
+            b1Name: document.getElementById('admBank1').value,
+            b1Card: document.getElementById('admCard1').value,
+            b2Name: document.getElementById('admBank2').value,
+            b2Card: document.getElementById('admCard2').value,
+            m10Num: document.getElementById('admM10').value
+        };
+        localStorage.setItem('bankDetails', JSON.stringify(details));
+        originalUpdateBank();
+    };
+
+    const originalAddPkg = addPackageSuper;
+    addPackageSuper = function() {
+        originalAddPkg();
+        const selectBox = document.getElementById('jetonPaketi');
+        const pkgs = Array.from(selectBox.options).map(opt => ({ val: opt.value, txt: opt.text }));
+        localStorage.setItem('jetonPackages', JSON.stringify(pkgs));
+    };
+
+    // Səhifə açılan kimi yüklə
+    window.addEventListener('DOMContentLoaded', loadDataFromStorage);
+</script>
