@@ -210,13 +210,7 @@
         <small style="color: #777;">M10 Nömrə</small><br>  
         <b>070 677 53 51</b>  
     </div>  
-    <input type="file" id="receiptInput" accept="image/*" style="margin-bottom:10px;">
-    <input type="number" id="receiptAmount" placeholder="Məbləğ (AZN)" style="margin-bottom:10px;">
-    <input type="text" id="receiptUser" placeholder="İstifadəçi adı" style="margin-bottom:10px;">
-
-    <button class="order-btn" style="background:#25D366;" onclick="sendReceiptToTelegram()">
-        ÇEKİ GÖNDƏR
-    </button>  
+    <button class="order-btn" style="background: #25D366;" onclick="window.open('https://wa.me/994706775351')">ÇEKİ GÖNDƏR</button>  
     <button class="order-btn" style="background: #222; margin-top: 10px;" onclick="showSection('home')">GERİ</button>  
 </div>  
 
@@ -314,43 +308,6 @@
 
     updateOrderStats();  
 </script>
-<script>
-function sendReceiptToTelegram() {
-  const file = document.getElementById('receiptInput').files[0];
-  const amount = document.getElementById('receiptAmount').value;
-  const username = document.getElementById('receiptUser').value;
-
-  if (!file || !amount || !username) {
-    alert("Bütün sahələri doldurun!");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = async () => {
-    const base64 = reader.result.split(",")[1];
-
-    const res = await fetch("/.netlify/functions/sendReceipt", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        image: base64,
-        amount: amount,
-        username: username
-      })
-    });
-
-    if (res.ok) {
-      alert("✅ Çek göndərildi");
-    } else {
-      alert("❌ Xəta baş verdi");
-    }
-  };
-
-  reader.readAsDataURL(file);
-}
-</script>
-
-</body>
 
 </body>  
 </html>  
@@ -848,43 +805,3 @@ window.showSection = function(section) {
     // Səhifə açılan kimi yüklə
     window.addEventListener('DOMContentLoaded', loadDataFromStorage);
 </script>
-<script>
-async function sendReceiptToTelegram() {
-    const file = document.getElementById('receiptInput').files[0];
-    const amount = document.getElementById('receiptAmount').value;
-
-    if (!file) {
-        alert("Çek şəkli seçilməyib!");
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async () => {
-        const base64 = reader.result.split(",")[1];
-
-        try {
-            const res = await fetch("/.netlify/functions/sendReceipt", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    image: base64,
-                    amount: amount || "Qeyd edilməyib"
-                })
-            });
-
-            if (res.ok) {
-                alert("✅ Çek uğurla göndərildi. Təsdiq gözləyin.");
-                document.getElementById('receiptInput').value = "";
-                document.getElementById('receiptAmount').value = "";
-            } else {
-                alert("❌ Xəta baş verdi");
-            }
-        } catch (e) {
-            alert("❌ Serverə qoşulma xətası");
-        }
-    };
-
-    reader.readAsDataURL(file);
-}
-</script>
-
